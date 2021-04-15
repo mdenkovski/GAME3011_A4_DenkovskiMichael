@@ -12,7 +12,7 @@ public class HackingPanel : MonoBehaviour
     //number of tiles to make the game
     public int xSize, ySize;
     public int GameXSize, GameYSize;
-    private float TileScale;
+    private Vector2 TileScale = Vector2.zero;
     Vector2 tileSize;
 
     private int NumOptions;
@@ -28,6 +28,12 @@ public class HackingPanel : MonoBehaviour
     private List<string> AnswerKey;
     private int NumAnswerComponents;
 
+    //HighlightParts
+    [SerializeField]
+    private GameObject HorizontalBox;
+    [SerializeField]
+    private GameObject VerticalBox;
+
     private void OnEnable()
     {
         if (Instance == null)
@@ -42,8 +48,7 @@ public class HackingPanel : MonoBehaviour
             }
         }
 
-        tileSize = tile.GetComponentInChildren<SpriteRenderer>().bounds.size;
-        TileScale = (GameXSize / xSize) / tileSize.x;
+        
 
         SetEasyDifficulty();
         
@@ -69,7 +74,7 @@ public class HackingPanel : MonoBehaviour
             for (int y = 0; y < ySize; y++)
             {
                 GameObject newTile = Instantiate(tile, new Vector3(startX + (xTileSize * x), startY + (yTileSize * y), 0), tile.transform.rotation);
-                newTile.transform.localScale = TileScale * Vector3.one;
+                newTile.transform.localScale = new Vector3(TileScale.x, TileScale.y, 1);
                 tiles[x, y] = newTile;
                 newTile.transform.parent = transform;
             }
@@ -93,6 +98,9 @@ public class HackingPanel : MonoBehaviour
 
             }
         }
+
+        SetHorizontalPosition(0);
+        SetVerticalPosition(0);
     }
 
     private void GenerateSolution()
@@ -144,7 +152,52 @@ public class HackingPanel : MonoBehaviour
         ClearBoard();
 
         PopulateOptions();
-        CreateBoard(tileSize.x * TileScale, tileSize.y * TileScale);
+
+        tileSize = tile.GetComponentInChildren<SpriteRenderer>().bounds.size;
+        TileScale.x = (GameXSize / xSize) / tileSize.x;
+        TileScale.y = (GameYSize / ySize) / tileSize.y;
+
+        Vector2 panelSize = HorizontalBox.GetComponentInChildren<SpriteRenderer>().bounds.size;
+        HorizontalBox.transform.localScale = new Vector3(GameXSize / panelSize.x,(GameYSize / panelSize.y)/ySize, 1); ;
+
+        panelSize = VerticalBox.GetComponentInChildren<SpriteRenderer>().bounds.size;
+        VerticalBox.transform.localScale = new Vector3(GameXSize / panelSize.x /xSize, (GameYSize / panelSize.y), 1); ;
+
+        CreateBoard(tileSize.x * TileScale.x, tileSize.y * TileScale.y);
+    }
+
+    private void SetHorizontalPosition(int colIndex)
+    {
+        if (colIndex < 0)
+        {
+            HorizontalBox.SetActive(false);
+            return;
+        }
+
+        if (colIndex >= ySize)
+        {
+            colIndex = ySize - 1;
+        }
+
+        HorizontalBox.transform.position = tiles[0, (ySize - 1) - colIndex].transform.position;
+        HorizontalBox.transform.position -= new Vector3(tileSize.x * TileScale.x / 2, 0,0);
+    }
+
+    private void SetVerticalPosition(int rowIndex)
+    {
+        if (rowIndex < 0)
+        {
+            VerticalBox.SetActive(false);
+            return;
+        }
+
+        if (rowIndex >= xSize)
+        {
+            rowIndex = xSize - 1;
+        }
+
+        VerticalBox.transform.position = tiles[rowIndex, ySize-1].transform.position;
+        VerticalBox.transform.position += new Vector3(0, tileSize.y * TileScale.y / 2, 0);
     }
 
     public void PopulateOptions()
@@ -177,5 +230,8 @@ public class HackingPanel : MonoBehaviour
                 Destroy(tiles[x, y]);
             }
         }
+
+        VerticalBox.transform.localScale = Vector3.one;
+        HorizontalBox.transform.localScale = Vector3.one;
     }
 }
