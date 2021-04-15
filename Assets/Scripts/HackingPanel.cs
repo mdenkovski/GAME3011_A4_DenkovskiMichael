@@ -75,6 +75,7 @@ public class HackingPanel : MonoBehaviour
             }
         }
 
+        //ensure there is at least one solution
         GenerateSolution();
 
         //fill out remaining tiles
@@ -83,7 +84,12 @@ public class HackingPanel : MonoBehaviour
             for (int y = 0; y < ySize; y++)
             {
 
-                
+                TileScript Tile = tiles[x,y].GetComponent<TileScript>();
+                if (!Tile.HasContent())
+                {
+                    //populate empty tiles with a random option
+                    Tile.Initialize(Options[Random.Range(0, Options.Count)]);
+                }
 
             }
         }
