@@ -10,7 +10,8 @@ public class HackingPanel : MonoBehaviour
     private GameObject[,] tiles;
     public GameObject tile;
     //number of tiles to make the game
-    public int xSize, ySize;
+    [SerializeField]
+    private int xSize, ySize;
     public int GameXSize, GameYSize;
     private Vector2 TileScale = Vector2.zero;
     Vector2 tileSize;
@@ -19,6 +20,8 @@ public class HackingPanel : MonoBehaviour
     private List<string> Options;
     string Letters = "ABCDEFG";
 
+    
+
 
     //Buffer
     private int BufferSize;
@@ -26,6 +29,9 @@ public class HackingPanel : MonoBehaviour
 
     //Goal
     private List<string> AnswerKey;
+
+   
+
     private int NumAnswerComponents;
 
     //HighlightParts
@@ -33,6 +39,10 @@ public class HackingPanel : MonoBehaviour
     private GameObject HorizontalBox;
     [SerializeField]
     private GameObject VerticalBox;
+    private int CurrentTurn = 0;
+    private int ActiveRow = 0;
+    private int ActiveCol = 0;
+
 
     private void OnEnable()
     {
@@ -93,14 +103,14 @@ public class HackingPanel : MonoBehaviour
                 if (!Tile.HasContent())
                 {
                     //populate empty tiles with a random option
-                    Tile.Initialize(Options[Random.Range(0, Options.Count)]);
+                    Tile.Initialize(Options[Random.Range(0, Options.Count)],x,ySize -1- y, this);
                 }
 
             }
         }
 
-        SetHorizontalPosition(0);
-        SetVerticalPosition(0);
+        SetHorizontalBoxPosition(0);
+        SetVerticalBoxPosition(-1);
     }
 
     private void GenerateSolution()
@@ -119,7 +129,7 @@ public class HackingPanel : MonoBehaviour
                     TileScript Tile = tiles[selection, (prevRow < 0 ? ySize-1 : prevRow)].GetComponent<TileScript>();
                     if (!Tile.HasContent())
                     {
-                        Tile.Initialize(AnswerKey[i]);
+                        Tile.Initialize(AnswerKey[i], selection, (prevRow < 0 ? 0 :ySize-1- prevRow), this);
                         validChoice = true;
                         prevCol = selection;
                     }
@@ -133,7 +143,7 @@ public class HackingPanel : MonoBehaviour
                     TileScript Tile = tiles[(prevCol < 0 ? xSize-1 : prevCol), selection].GetComponent<TileScript>();
                     if (!Tile.HasContent())
                     {
-                        Tile.Initialize(AnswerKey[i]);
+                        Tile.Initialize(AnswerKey[i], (prevCol < 0 ? xSize - 1 : prevCol), ySize - 1- selection, this);
                         validChoice = true;
                         prevRow = selection;
                     }
@@ -166,7 +176,7 @@ public class HackingPanel : MonoBehaviour
         CreateBoard(tileSize.x * TileScale.x, tileSize.y * TileScale.y);
     }
 
-    private void SetHorizontalPosition(int colIndex)
+    private void SetHorizontalBoxPosition(int colIndex)
     {
         if (colIndex < 0)
         {
@@ -174,6 +184,7 @@ public class HackingPanel : MonoBehaviour
             return;
         }
 
+        HorizontalBox.SetActive(true);
         if (colIndex >= ySize)
         {
             colIndex = ySize - 1;
@@ -183,7 +194,7 @@ public class HackingPanel : MonoBehaviour
         HorizontalBox.transform.position -= new Vector3(tileSize.x * TileScale.x / 2, 0,0);
     }
 
-    private void SetVerticalPosition(int rowIndex)
+    private void SetVerticalBoxPosition(int rowIndex)
     {
         if (rowIndex < 0)
         {
@@ -191,6 +202,7 @@ public class HackingPanel : MonoBehaviour
             return;
         }
 
+        VerticalBox.SetActive(true);
         if (rowIndex >= xSize)
         {
             rowIndex = xSize - 1;
@@ -233,5 +245,49 @@ public class HackingPanel : MonoBehaviour
 
         VerticalBox.transform.localScale = Vector3.one;
         HorizontalBox.transform.localScale = Vector3.one;
+    }
+
+    public void TileSelected(string content, Vector2 gridLocation)
+    {
+        if (CurrentTurn % 2 == 0) //even and need to be horizontal selection
+        {
+            SetHorizontalBoxPosition(-1);
+            SetVerticalBoxPosition((int)gridLocation.x);
+            ActiveCol = (int)gridLocation.x;
+        }
+        else
+        {
+            SetHorizontalBoxPosition((int)gridLocation.y);
+            SetVerticalBoxPosition(-1);
+            ActiveRow = (int)gridLocation.y;
+        }
+        
+        ChooseAnswer(content);
+    }
+
+    public void ChooseAnswer(string choice)
+    {
+        //BufferChoices.Add(choice);
+        CurrentTurn++;
+    }
+
+    public bool IsValidTileSelection(Vector2 gridLocation)
+    {
+        if (CurrentTurn % 2 == 0) //even and need to be horizontal
+        {
+            if (gridLocation.y == ActiveRow)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (gridLocation.x == ActiveCol)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
