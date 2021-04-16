@@ -9,8 +9,7 @@ public class HackingPanel : MonoBehaviour
     //board Setup
     private GameObject[,] tiles;
     public GameObject tile;
-    //number of tiles to make the game
-    [SerializeField]
+    
     private int xSize, ySize;
     public int GameXSize, GameYSize;
     private Vector2 TileScale = Vector2.zero;
@@ -46,6 +45,11 @@ public class HackingPanel : MonoBehaviour
     private int ActiveRow = 0;
     private int ActiveCol = 0;
 
+
+    [SerializeField]
+    private GameUIManager GameUI;
+    [SerializeField]
+    private TimerBehaviour Timer;
 
     private void OnEnable()
     {
@@ -158,18 +162,48 @@ public class HackingPanel : MonoBehaviour
 
     public void SetEasyDifficulty()
     {
+        ClearBoard();
         xSize = ySize = 3;
-
         NumOptions = 4;
         BufferSize = 4;
-
         NumAnswerComponents = 2;
+        Timer.SetTimer(10);
+        GameUI.EasyDifficultyChosen();
+        SetupNewDifficulty();
+    }
+
+    public void SetMediumDifficulty()
+    {
+        ClearBoard();
+        xSize = ySize = 4;
+        NumOptions = 6;
+        BufferSize = 5;
+        NumAnswerComponents = 4;
+        Timer.SetTimer(15);
+        GameUI.MediumDifficultyChosen();
 
         SetupNewDifficulty();
     }
-    private void SetupNewDifficulty()
+    public void SetHardDifficulty()
     {
         ClearBoard();
+        xSize = ySize = 5;
+
+        NumOptions = 8;
+        BufferSize = 6;
+
+        NumAnswerComponents = 6;
+        Timer.SetTimer(20);
+        GameUI.HardDifficultyChosen();
+
+
+        SetupNewDifficulty();
+    }
+
+
+    private void SetupNewDifficulty()
+    {
+        
         BufferChoices = new List<string>();
         Buffer.Initialize(BufferSize);
         PopulateOptions();
@@ -272,10 +306,13 @@ public class HackingPanel : MonoBehaviour
 
         Buffer?.ClearBuffer();
         TargetSequencePanel?.ClearBuffer();
+        GameUI.ResetUI();
+
     }
 
     public void TileSelected(string content, Vector2 gridLocation)
     {
+
         if (CurrentTurn % 2 == 0) //even and need to be horizontal selection
         {
             SetHorizontalBoxPosition(-1);
@@ -299,7 +336,7 @@ public class HackingPanel : MonoBehaviour
 
         if (!CheckAnswer() && BufferChoices.Count == BufferSize)
         {
-            //TODO: Show game over panel
+            GameLose();
             return;
         }
 
@@ -380,15 +417,30 @@ public class HackingPanel : MonoBehaviour
         {
             Debug.Log("Answer Matches");
             //disable turns
-            CurrentTurn = 99;
+            
             //remove any guiding panel
             SetVerticalBoxPosition(-1);
             SetHorizontalBoxPosition(-1);
 
-            //TODO: show game win panel
-
+            GameWin();
             return true;
         }
         return false;
     }
+
+    private void GameWin()
+    {
+        CurrentTurn = 99;
+        GameUI.GameWin();
+        Timer.StopTimer();
+    }   
+    
+    public void GameLose()
+    {
+        CurrentTurn = 99;
+        GameUI.GameOver();
+        Timer.StopTimer();
+
+    }
+
 }
