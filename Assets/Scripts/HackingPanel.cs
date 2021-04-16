@@ -418,9 +418,7 @@ public class HackingPanel : MonoBehaviour
             Debug.Log("Answer Matches");
             //disable turns
             
-            //remove any guiding panel
-            SetVerticalBoxPosition(-1);
-            SetHorizontalBoxPosition(-1);
+            
 
             GameWin();
             return true;
@@ -430,17 +428,26 @@ public class HackingPanel : MonoBehaviour
 
     private void GameWin()
     {
-        CurrentTurn = 99;
+        StopGame();
         GameUI.GameWin();
-        Timer.StopTimer();
     }   
     
     public void GameLose()
     {
-        CurrentTurn = 99;
-        GameUI.GameOver();
-        Timer.StopTimer();
 
+        StopGame();
+
+        GameUI.GameOver();
+
+    }
+
+    private void StopGame()
+    {
+        CurrentTurn = 99;
+        //remove any guiding panel
+        SetVerticalBoxPosition(-1);
+        SetHorizontalBoxPosition(-1);
+        Timer.StopTimer();
     }
 
 }
