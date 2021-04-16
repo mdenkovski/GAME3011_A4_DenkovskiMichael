@@ -297,10 +297,9 @@ public class HackingPanel : MonoBehaviour
         BufferChoices.Add(choice);
         Buffer.SetElementContent(CurrentTurn, choice);
 
-        CheckAnswer();
-
-        if (BufferChoices.Count == BufferSize)
+        if (!CheckAnswer() && BufferChoices.Count == BufferSize)
         {
+            //TODO: Show game over panel
             return;
         }
 
@@ -331,9 +330,9 @@ public class HackingPanel : MonoBehaviour
         return false;
     }
 
-    private void CheckAnswer()
+    private bool CheckAnswer()
     {
-        if (!BufferChoices.Contains(AnswerKey[0])) return;
+        if (!BufferChoices.Contains(AnswerKey[0])) return false;
 
         int StartingIndex = -1;
         bool answerFound = true;
@@ -380,11 +379,16 @@ public class HackingPanel : MonoBehaviour
         if (answerFound)
         {
             Debug.Log("Answer Matches");
+            //disable turns
             CurrentTurn = 99;
             //remove any guiding panel
             SetVerticalBoxPosition(-1);
             SetHorizontalBoxPosition(-1);
 
+            //TODO: show game win panel
+
+            return true;
         }
+        return false;
     }
 }
