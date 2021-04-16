@@ -31,7 +31,8 @@ public class HackingPanel : MonoBehaviour
 
     //Goal
     private List<string> AnswerKey;
-
+    [SerializeField]
+    private TargetSequenceScript TargetSequencePanel;
    
 
     private int NumAnswerComponents;
@@ -157,6 +158,8 @@ public class HackingPanel : MonoBehaviour
 
     public void SetEasyDifficulty()
     {
+        xSize = ySize = 3;
+
         NumOptions = 4;
         BufferSize = 4;
 
@@ -170,6 +173,7 @@ public class HackingPanel : MonoBehaviour
         BufferChoices = new List<string>();
         Buffer.Initialize(BufferSize);
         PopulateOptions();
+        TargetSequencePanel.Initialize(AnswerKey);
 
         SetBoardScale();
         CreateBoard(tileSize.x * TileScale.x, tileSize.y * TileScale.y);
