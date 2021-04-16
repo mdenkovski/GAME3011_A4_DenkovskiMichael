@@ -26,6 +26,8 @@ public class HackingPanel : MonoBehaviour
     //Buffer
     private int BufferSize;
     private List<string> BufferChoices;
+    [SerializeField]
+    BufferScript Buffer;
 
     //Goal
     private List<string> AnswerKey;
@@ -157,23 +159,34 @@ public class HackingPanel : MonoBehaviour
     {
         NumOptions = 4;
         BufferSize = 4;
+        BufferChoices = new List<string>();
+
+        Buffer.Initialize(BufferSize);
+
         NumAnswerComponents = 2;
 
         ClearBoard();
 
         PopulateOptions();
 
+        SetBoardScale();
+        CreateBoard(tileSize.x * TileScale.x, tileSize.y * TileScale.y);
+    }
+
+    /// <summary>
+    /// needas to be called before create board
+    /// </summary>
+    private void SetBoardScale()
+    {
         tileSize = tile.GetComponentInChildren<SpriteRenderer>().bounds.size;
         TileScale.x = (GameXSize / xSize) / tileSize.x;
         TileScale.y = (GameYSize / ySize) / tileSize.y;
 
         Vector2 panelSize = HorizontalBox.GetComponentInChildren<SpriteRenderer>().bounds.size;
-        HorizontalBox.transform.localScale = new Vector3(GameXSize / panelSize.x,(GameYSize / panelSize.y)/ySize, 1); ;
+        HorizontalBox.transform.localScale = new Vector3(GameXSize / panelSize.x, (GameYSize / panelSize.y) / ySize, 1); ;
 
         panelSize = VerticalBox.GetComponentInChildren<SpriteRenderer>().bounds.size;
-        VerticalBox.transform.localScale = new Vector3(GameXSize / panelSize.x /xSize, (GameYSize / panelSize.y), 1); ;
-
-        CreateBoard(tileSize.x * TileScale.x, tileSize.y * TileScale.y);
+        VerticalBox.transform.localScale = new Vector3(GameXSize / panelSize.x / xSize, (GameYSize / panelSize.y), 1); ;
     }
 
     private void SetHorizontalBoxPosition(int colIndex)
@@ -245,6 +258,12 @@ public class HackingPanel : MonoBehaviour
 
         VerticalBox.transform.localScale = Vector3.one;
         HorizontalBox.transform.localScale = Vector3.one;
+
+        CurrentTurn = 0;
+        ActiveRow = 0;
+        ActiveCol = 0;
+
+        Buffer?.ClearBuffer();
     }
 
     public void TileSelected(string content, Vector2 gridLocation)
@@ -267,12 +286,25 @@ public class HackingPanel : MonoBehaviour
 
     public void ChooseAnswer(string choice)
     {
-        //BufferChoices.Add(choice);
+        BufferChoices.Add(choice);
+        Buffer.SetElementContent(CurrentTurn, choice);
+
+
+        if (BufferChoices.Count == BufferSize)
+        {
+            CheckAnswer();
+            return;
+        }
+
         CurrentTurn++;
     }
 
     public bool IsValidTileSelection(Vector2 gridLocation)
     {
+        //if unable to make more moves
+        if (CurrentTurn == BufferSize) return false;
+
+
         if (CurrentTurn % 2 == 0) //even and need to be horizontal
         {
             if (gridLocation.y == ActiveRow)
@@ -289,5 +321,12 @@ public class HackingPanel : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void CheckAnswer()
+    {
+        //remove any guiding panel
+        SetVerticalBoxPosition(-1);
+        SetHorizontalBoxPosition(-1);
     }
 }
