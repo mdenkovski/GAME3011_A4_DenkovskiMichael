@@ -271,6 +271,7 @@ public class HackingPanel : MonoBehaviour
         ActiveCol = 0;
 
         Buffer?.ClearBuffer();
+        TargetSequencePanel?.ClearBuffer();
     }
 
     public void TileSelected(string content, Vector2 gridLocation)
@@ -296,10 +297,10 @@ public class HackingPanel : MonoBehaviour
         BufferChoices.Add(choice);
         Buffer.SetElementContent(CurrentTurn, choice);
 
+        CheckAnswer();
 
         if (BufferChoices.Count == BufferSize)
         {
-            CheckAnswer();
             return;
         }
 
@@ -309,7 +310,7 @@ public class HackingPanel : MonoBehaviour
     public bool IsValidTileSelection(Vector2 gridLocation)
     {
         //if unable to make more moves
-        if (CurrentTurn == BufferSize) return false;
+        if (CurrentTurn >= BufferSize) return false;
 
 
         if (CurrentTurn % 2 == 0) //even and need to be horizontal
@@ -332,8 +333,58 @@ public class HackingPanel : MonoBehaviour
 
     private void CheckAnswer()
     {
-        //remove any guiding panel
-        SetVerticalBoxPosition(-1);
-        SetHorizontalBoxPosition(-1);
+        if (!BufferChoices.Contains(AnswerKey[0])) return;
+
+        int StartingIndex = -1;
+        bool answerFound = true;
+        bool continueChecking = true;
+        int prevIndex = -1;
+        while (continueChecking)
+        {
+            answerFound = true;
+            for (int i = StartingIndex + 1; i < BufferChoices.Count; i++)
+            {
+                if (BufferChoices[i] == AnswerKey[0])
+                {
+                    StartingIndex = i;
+                    break;
+                }
+            }
+            //not enough answers in the buffer
+            if ((BufferChoices.Count - 1) - StartingIndex < AnswerKey.Count - 1 
+                || prevIndex == StartingIndex) // no new index was found
+            {
+                continueChecking = false;
+                answerFound = false;
+            }
+            if (continueChecking)
+            {
+                for (int i = 0; i < AnswerKey.Count; i++)
+                {
+                    //a mismatch
+                    if (!(BufferChoices[StartingIndex + i] == AnswerKey[i]))
+                    {
+                        answerFound = false;
+                    }
+                }
+                if (answerFound)
+                {
+                    continueChecking = false;
+                }
+                prevIndex = StartingIndex;
+            }
+            
+        }
+        
+
+        if (answerFound)
+        {
+            Debug.Log("Answer Matches");
+            CurrentTurn = 99;
+            //remove any guiding panel
+            SetVerticalBoxPosition(-1);
+            SetHorizontalBoxPosition(-1);
+
+        }
     }
 }
