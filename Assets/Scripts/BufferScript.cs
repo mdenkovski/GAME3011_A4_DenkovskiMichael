@@ -11,13 +11,9 @@ public class BufferScript : MonoBehaviour
     [SerializeField]
     private GameObject BufferSlotPrefab;
 
-    private List<GameObject> BufferSlots;
+    private List<GameObject> BufferSlots = new List<GameObject>();
 
-    private void OnEnable()
-    {
-        BufferSlots = new List<GameObject>();
-        
-    }
+   
 
     public void Initialize(int NumBuffers)
     {
@@ -43,5 +39,6 @@ public class BufferScript : MonoBehaviour
         {
             Destroy(slot);
         }
+        BufferSlots.Clear();
     }
 }

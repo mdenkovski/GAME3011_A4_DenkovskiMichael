@@ -159,14 +159,16 @@ public class HackingPanel : MonoBehaviour
     {
         NumOptions = 4;
         BufferSize = 4;
-        BufferChoices = new List<string>();
-
-        Buffer.Initialize(BufferSize);
 
         NumAnswerComponents = 2;
 
+        SetupNewDifficulty();
+    }
+    private void SetupNewDifficulty()
+    {
         ClearBoard();
-
+        BufferChoices = new List<string>();
+        Buffer.Initialize(BufferSize);
         PopulateOptions();
 
         SetBoardScale();
@@ -242,6 +244,7 @@ public class HackingPanel : MonoBehaviour
             AnswerKey.Add(Options[Random.Range(0, Options.Count)]);
         }
 
+        
     }
 
     private void ClearBoard()
