@@ -106,7 +106,7 @@ public class HackingPanel : MonoBehaviour
             for (int y = 0; y < ySize; y++)
             {
 
-                TileScript Tile = tiles[x,y].GetComponent<TileScript>();
+                TileScript Tile = tiles[x,y].GetComponentInChildren<TileScript>();
                 if (!Tile.HasContent())
                 {
                     //populate empty tiles with a random option
@@ -133,7 +133,7 @@ public class HackingPanel : MonoBehaviour
                 while (!validChoice)
                 {
                     int selection = Random.Range(0, xSize);
-                    TileScript Tile = tiles[selection, (prevRow < 0 ? ySize-1 : prevRow)].GetComponent<TileScript>();
+                    TileScript Tile = tiles[selection, (prevRow < 0 ? ySize-1 : prevRow)].GetComponentInChildren<TileScript>();
                     if (!Tile.HasContent())
                     {
                         Tile.Initialize(AnswerKey[i], selection, (prevRow < 0 ? 0 :ySize-1- prevRow), this);
@@ -147,7 +147,7 @@ public class HackingPanel : MonoBehaviour
                 while (!validChoice)
                 {
                     int selection = Random.Range(0, ySize);
-                    TileScript Tile = tiles[(prevCol < 0 ? xSize-1 : prevCol), selection].GetComponent<TileScript>();
+                    TileScript Tile = tiles[(prevCol < 0 ? xSize-1 : prevCol), selection].GetComponentInChildren<TileScript>();
                     if (!Tile.HasContent())
                     {
                         Tile.Initialize(AnswerKey[i], (prevCol < 0 ? xSize - 1 : prevCol), ySize - 1- selection, this);
@@ -244,7 +244,7 @@ public class HackingPanel : MonoBehaviour
         }
 
         HorizontalBox.transform.position = tiles[0, (ySize - 1) - colIndex].transform.position;
-        HorizontalBox.transform.position -= new Vector3(tileSize.x * TileScale.x / 2, 0,0);
+        HorizontalBox.transform.position += new Vector3(0, tileSize.y * TileScale.y / 2, 0);
     }
 
     private void SetVerticalBoxPosition(int rowIndex)
@@ -262,7 +262,7 @@ public class HackingPanel : MonoBehaviour
         }
 
         VerticalBox.transform.position = tiles[rowIndex, ySize-1].transform.position;
-        VerticalBox.transform.position += new Vector3(0, tileSize.y * TileScale.y / 2, 0);
+        VerticalBox.transform.position += new Vector3(tileSize.x * TileScale.x / 2, tileSize.y * TileScale.y, 0);
     }
 
     public void PopulateOptions()
