@@ -106,11 +106,11 @@ public class HackingPanel : MonoBehaviour
             for (int y = 0; y < ySize; y++)
             {
 
-                TileScript Tile = tiles[x,y].GetComponentInChildren<TileScript>();
+                TileScript Tile = tiles[x, y].GetComponentInChildren<TileScript>();
                 if (!Tile.HasContent())
                 {
                     //populate empty tiles with a random option
-                    Tile.Initialize(Options[Random.Range(0, Options.Count)],x,ySize -1- y, this);
+                    Tile.Initialize(Options[Random.Range(0, Options.Count)], x, ySize - 1 - y, this);
                 }
 
             }
@@ -125,7 +125,33 @@ public class HackingPanel : MonoBehaviour
         int prevRow = -1;
         int prevCol = -1;
         bool validChoice = false;
-        for (int i = 0; i < NumAnswerComponents; i++)
+
+        int startPoint = 0;
+        bool offset = false;
+        int startCol = 0;
+        //set the start point for possible mid way
+        //have more room in buffer than answers
+        if (NumAnswerComponents < BufferSize)
+        {
+            int difference = BufferSize - NumAnswerComponents;
+            //make the difference inclusive so add 1
+            startPoint = Random.Range(0, difference + 1);
+            if (startPoint > 0)
+            {
+                //prevent from starting in our start
+                prevRow = Random.Range(1, ySize);
+                prevCol = Random.Range(0, xSize);
+                if (startPoint%2 == 1)
+                {
+                    offset = true;
+                    startCol = prevCol;
+                }
+
+            }
+        }
+
+
+        for (int i = startPoint; i < NumAnswerComponents + startPoint; i++)
         {
             validChoice = false;
             if (i % 2 == 0) //even number so a row
@@ -134,11 +160,18 @@ public class HackingPanel : MonoBehaviour
                 {
                     int selection = Random.Range(0, xSize);
                     TileScript Tile = tiles[selection, (prevRow < 0 ? ySize-1 : prevRow)].GetComponentInChildren<TileScript>();
-                    if (!Tile.HasContent())
+                    if (!(offset && prevRow == ySize - 1 && selection == startCol)) //if we did an offset want to reserve the starting square to not be used
                     {
-                        Tile.Initialize(AnswerKey[i], selection, (prevRow < 0 ? 0 :ySize-1- prevRow), this);
-                        validChoice = true;
-                        prevCol = selection;
+                        if (!Tile.HasContent())
+                        {
+                            Tile.Initialize(AnswerKey[i - startPoint], selection, (prevRow < 0 ? 0 : ySize - 1 - prevRow), this);
+                            validChoice = true;
+                            prevCol = selection;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Prevented impossible");
                     }
                 }
             }
@@ -148,12 +181,20 @@ public class HackingPanel : MonoBehaviour
                 {
                     int selection = Random.Range(0, ySize);
                     TileScript Tile = tiles[(prevCol < 0 ? xSize-1 : prevCol), selection].GetComponentInChildren<TileScript>();
-                    if (!Tile.HasContent())
+                    if (!(offset && selection == ySize - 1 && prevCol == startCol ) ) //if we did an offset want to reserve the starting square to not be used
                     {
-                        Tile.Initialize(AnswerKey[i], (prevCol < 0 ? xSize - 1 : prevCol), ySize - 1- selection, this);
-                        validChoice = true;
-                        prevRow = selection;
+                        if (!Tile.HasContent())
+                        {
+                            Tile.Initialize(AnswerKey[i - startPoint], (prevCol < 0 ? xSize - 1 : prevCol), ySize - 1 - selection, this);
+                            validChoice = true;
+                            prevRow = selection;
+                        }
                     }
+                    else
+                    {
+                        Debug.Log("Prevented impossible");
+                    }
+                    
                 }
             }
         }
@@ -177,9 +218,9 @@ public class HackingPanel : MonoBehaviour
         ClearBoard();
         xSize = ySize = 4;
         NumOptions = 6;
-        BufferSize = 5;
+        BufferSize = 6;
         NumAnswerComponents = 4;
-        Timer.SetTimer(15);
+        Timer.SetTimer(30);
         GameUI.MediumDifficultyChosen();
 
         SetupNewDifficulty();
@@ -190,10 +231,10 @@ public class HackingPanel : MonoBehaviour
         xSize = ySize = 5;
 
         NumOptions = 8;
-        BufferSize = 6;
+        BufferSize = 8;
 
         NumAnswerComponents = 6;
-        Timer.SetTimer(20);
+        Timer.SetTimer(60);
         GameUI.HardDifficultyChosen();
 
 
