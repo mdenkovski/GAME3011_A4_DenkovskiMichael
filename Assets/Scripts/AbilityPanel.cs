@@ -17,10 +17,7 @@ public class AbilityPanel : MonoBehaviour
 
     private bool IsAbilityEnabled;
 
-    private void Awake()
-    {
-        DisableAbility();
-    }
+    
 
     public void UseExtendTimeAbility()
     {

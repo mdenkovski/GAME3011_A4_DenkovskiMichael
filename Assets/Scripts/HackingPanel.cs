@@ -234,7 +234,7 @@ public class HackingPanel : MonoBehaviour
         BufferSize = 8;
 
         NumAnswerComponents = 6;
-        Timer.SetTimer(60);
+        Timer.SetTimer(80);
         GameUI.HardDifficultyChosen();
 
 
