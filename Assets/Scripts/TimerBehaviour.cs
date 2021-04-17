@@ -40,4 +40,14 @@ public class TimerBehaviour : MonoBehaviour
     {
         IsEnabled = false;
     }
+
+    public void ReduceElapsedTime(float timeAmount)
+    {
+        ElapsedTime -= timeAmount;
+
+        if (ElapsedTime <0)
+        {
+            ElapsedTime = 0;
+        }
+    }
 }

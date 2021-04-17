@@ -17,6 +17,9 @@ public class GameUIManager : MonoBehaviour
     [SerializeField]
     private Image HardButtonImage;
 
+    [SerializeField]
+    private AbilityPanel AbilityPanel;
+
     private void OnEnable()
     {
         ResetUI();
@@ -31,11 +34,13 @@ public class GameUIManager : MonoBehaviour
     public void GameWin()
     {
         GameWinCanvas.SetActive(true);
+        AbilityPanel.DisableAbility();
     }
 
     public void GameOver()
     {
         GameOverCanvas.SetActive(true);
+        AbilityPanel.DisableAbility();
 
     }
 
@@ -44,6 +49,7 @@ public class GameUIManager : MonoBehaviour
         EasyButtonImage.color = Color.green;
         MediumButtonImage.color = Color.white;
         HardButtonImage.color = Color.white;
+        AbilityPanel.EnableAbility();
     }
 
     public void MediumDifficultyChosen()
@@ -51,6 +57,7 @@ public class GameUIManager : MonoBehaviour
         EasyButtonImage.color = Color.white;
         MediumButtonImage.color = Color.green;
         HardButtonImage.color = Color.white;
+        AbilityPanel.EnableAbility();
     }
 
     public void HardDifficultyChosen()
@@ -58,5 +65,6 @@ public class GameUIManager : MonoBehaviour
         EasyButtonImage.color = Color.white;
         MediumButtonImage.color = Color.white;
         HardButtonImage.color = Color.green;
+        AbilityPanel.EnableAbility();
     }
 }
